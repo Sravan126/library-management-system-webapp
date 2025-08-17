@@ -1,0 +1,401 @@
+/* Library Management System - Custom Styles
+   Modern UI Design with professional color scheme */
+
+:root {
+    --primary-color: #3949ab;      /* Primary Blue */
+    --primary-dark: #283593;       /* Darker Blue for Hover States */
+    --primary-light: #e8eaf6;      /* Light Blue for Backgrounds */
+    --accent-color: #ff6d00;       /* Orange Accent */
+    --success-color: #4caf50;      /* Green */
+    --warning-color: #ff9800;      /* Orange */
+    --danger-color: #f44336;       /* Red */
+    --dark-color: #212121;         /* Near Black */
+    --light-color: #f5f5f5;        /* Light Gray */
+    --medium-color: #757575;       /* Medium Gray */
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  /* Subtle Shadow */
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+main {
+    flex: 1;
+}
+
+/* Navigation Bar Styling */
+.navbar-dark.bg-primary {
+    background-color: var(--primary-color) !important;
+    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 1050;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Dropdown Menu Fix */
+.dropdown-menu {
+    z-index: 1051;
+    box-shadow: var(--shadow);
+    position: absolute !important;
+}
+
+.nav-item.dropdown {
+    position: static;
+}
+
+.navbar .dropdown-menu-end {
+    right: 0;
+    left: auto;
+}
+
+/* Flash Messages */
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 90%;
+}
+
+.alert {
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Card Styling */
+.card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    font-weight: 600;
+    border-bottom: none;
+}
+
+.card-header.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Book Cover Styling */
+.book-cover {
+    height: 200px;
+    object-fit: cover;
+}
+
+.book-cover-placeholder {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-light);
+}
+
+/* Hero Section Styling */
+.hero-section {
+    padding: 4rem 0;
+    background-color: var(--primary-light);
+    background-image: linear-gradient(135deg, var(--primary-light) 0%, white 100%);
+}
+
+.hero-section h1 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* Buttons Styling */
+.btn {
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-sm {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+/* Form Styling */
+.form-control {
+    border-radius: 0.25rem;
+    border: 1px solid #ddd;
+    padding: 0.6rem 1rem;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+}
+
+.input-group-text {
+    border-radius: 0.25rem 0 0 0.25rem;
+    background-color: var(--primary-light);
+    border: 1px solid #ddd;
+    color: var(--medium-color);
+}
+
+/* Footer Styling */
+footer {
+    background-color: var(--dark-color) !important;
+    color: white;
+    margin-top: auto;
+}
+
+footer a {
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+footer a:hover {
+    color: #0d6efd !important;
+}
+
+/* Table Styling */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    border-top: none;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Badge Styling */
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.6em;
+    border-radius: 0.25rem;
+}
+
+/* Admin Panel Tabs */
+.list-group-item.list-group-item-action {
+    border: none;
+    border-left: 3px solid transparent;
+    padding: 0.75rem 1.25rem;
+    color: var(--medium-color);
+}
+
+.list-group-item.list-group-item-action.active {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border-left-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.list-group-item.list-group-item-action:hover {
+    background-color: rgba(232, 234, 246, 0.5);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        text-align: center;
+        padding: 3rem 0;
+    }
+    
+    .book-cover, .book-cover-placeholder {
+        height: 180px;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .btn {
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .flash-messages {
+        position: static;
+        max-width: 100%;
+        margin: 10px;
+    }
+    
+    .book-cover {
+        height: 150px;
+    }
+    
+    .dashboard-stats .value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Dashboard Statistics Cards */
+.bg-primary, .bg-success, .bg-info, .bg-warning {
+    transition: transform 0.2s ease-in-out;
+}
+
+.bg-primary:hover, .bg-success:hover, .bg-info:hover, .bg-warning:hover {
+    transform: scale(1.03);
+}
+
+/* Modal Styling */
+.modal-content {
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.modal-header {
+    border-bottom: none;
+}
+
+.modal-footer {
+    border-top: none;
+}
+
+/* Catalog Page Filters */
+.form-select {
+    height: calc(2.25rem + 2px);
+    padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+}
+
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(57, 73, 171, 0.25);
+}
+
+/* Utility Classes */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Book Cards */
+.book-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+    cursor: pointer;
+    position: relative;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,.1);
+}
+
+.book-card .btn {
+    position: relative;
+    z-index: 2;
+}
+
+/* Rating Stars */
+.rating-stars {
+    color: #ffc107;
+}
+
+.rating-stars .far {
+    color: #e4e5e9;
+}
+
+/* Dashboard */
+.dashboard-stats {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    margin-bottom: 20px;
+}
+
+.dashboard-stats h3 {
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.dashboard-stats .value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+/* Loading Spinner */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+} 

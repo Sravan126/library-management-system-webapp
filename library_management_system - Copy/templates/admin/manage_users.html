@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - Library Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="fa-solid fa-book-open me-2"></i>Digital Library
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('catalog') }}">Book Catalog</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">
+                            <i class="fa-solid fa-user me-1"></i>{{ current_user.name }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin_panel') }}">
+                            <i class="fa-solid fa-cog me-1"></i>Admin
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fa-solid fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="mb-0"><i class="fa-solid fa-users-cog me-2 text-primary"></i>User Management</h1>
+                <p class="lead text-muted">Manage user accounts and privileges</p>
+            </div>
+            <div class="col-auto align-self-center">
+                <a href="{{ url_for('admin_panel') }}" class="btn btn-outline-primary">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back to Admin Panel
+                </a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fa-solid fa-users me-2"></i>User Accounts</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                                <th>Role</th>
+                                <th>Borrowing Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.date_joined.strftime('%b %d, %Y') }}</td>
+                                    <td>
+                                        {% if user.is_admin %}
+                                            <span class="badge bg-primary">Administrator</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Regular User</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% set active_borrows = user.borrow_records|selectattr('returned', 'equalto', false)|list %}
+                                        {% if active_borrows %}
+                                            <span class="badge bg-info text-dark">{{ active_borrows|length }} book(s) borrowed</span>
+                                            
+                                            {% set overdue = active_borrows|selectattr('due_date', 'lt', now)|list %}
+                                            {% if overdue %}
+                                                <span class="badge bg-danger">{{ overdue|length }} overdue</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-success">No active borrows</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#userDetailsModal{{ user.id }}">
+                                                <i class="fa-solid fa-eye" title="View Details"></i>
+                                            </button>
+                                            
+                                            {% if user.id != current_user.id %}
+                                                <form action="{{ url_for('toggle_admin', user_id=user.id) }}" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                        {% if user.is_admin %}
+                                                            <i class="fa-solid fa-user-minus" title="Remove Admin"></i>
+                                                        {% else %}
+                                                            <i class="fa-solid fa-user-plus" title="Make Admin"></i>
+                                                        {% endif %}
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <button disabled class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa-solid fa-user-shield" title="Current User"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- User Details Modal -->
+                                        <div class="modal fade" id="userDetailsModal{{ user.id }}" tabindex="-1" aria-labelledby="userDetailsModalLabel{{ user.id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-primary text-white">
+                                                        <h5 class="modal-title" id="userDetailsModalLabel{{ user.id }}">
+                                                            <i class="fa-solid fa-user me-2"></i>User Details: {{ user.name }}
+                                                        </h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row mb-4">
+                                                            <div class="col-md-6">
+                                                                <h6>Account Information</h6>
+                                                                <ul class="list-group">
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        User ID
+                                                                        <span>{{ user.id }}</span>
+                                                                    </li>
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Name
+                                                                        <span>{{ user.name }}</span>
+                                                                    </li>
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Email
+                                                                        <span>{{ user.email }}</span>
+                                                                    </li>
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Joined
+                                                                        <span>{{ user.date_joined.strftime('%B %d, %Y') }}</span>
+                                                                    </li>
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Role
+                                                                        <span>{% if user.is_admin %}Administrator{% else %}Regular User{% endif %}</span>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <h6>Borrowing Statistics</h6>
+                                                                <ul class="list-group">
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Active Borrows
+                                                                        <span class="badge bg-primary rounded-pill">{{ active_borrows|length }}</span>
+                                                                    </li>
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Overdue Books
+                                                                        <span class="badge bg-danger rounded-pill">{{ overdue|length if overdue else 0 }}</span>
+                                                                    </li>
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Total Books Borrowed
+                                                                        <span class="badge bg-info text-dark rounded-pill">{{ user.borrow_records|length }}</span>
+                                                                    </li>
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Books Returned
+                                                                        <span class="badge bg-success rounded-pill">{{ user.borrow_records|selectattr('returned', 'equalto', true)|list|length }}</span>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <h6>Current Borrows</h6>
+                                                        {% if active_borrows %}
+                                                            <div class="table-responsive">
+                                                                <table class="table table-sm">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Book</th>
+                                                                            <th>Borrowed</th>
+                                                                            <th>Due Date</th>
+                                                                            <th>Status</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {% for borrow in active_borrows %}
+                                                                            <tr>
+                                                                                <td>{{ borrow.book.title }}</td>
+                                                                                <td>{{ borrow.borrow_date.strftime('%b %d, %Y') }}</td>
+                                                                                <td>{{ borrow.due_date.strftime('%b %d, %Y') }}</td>
+                                                                                <td>
+                                                                                    {% if borrow.due_date < now %}
+                                                                                        <span class="badge bg-danger">Overdue by {{ days_overdue(borrow.due_date) }} days</span>
+                                                                                    {% else %}
+                                                                                        <span class="badge bg-success">On time</span>
+                                                                                    {% endif %}
+                                                                                </td>
+                                                                            </tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="alert alert-info mb-0">
+                                                                This user doesn't have any active borrows.
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        {% if user.id != current_user.id %}
+                                                            <form action="{{ url_for('toggle_admin', user_id=user.id) }}" method="post" class="d-inline">
+                                                                <button type="submit" class="btn btn-primary">
+                                                                    {% if user.is_admin %}
+                                                                        <i class="fa-solid fa-user-minus me-1"></i> Remove Admin Privileges
+                                                                    {% else %}
+                                                                        <i class="fa-solid fa-user-plus me-1"></i> Grant Admin Privileges
+                                                                    {% endif %}
+                                                                </button>
+                                                            </form>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fa-solid fa-chart-pie me-2"></i>User Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <div class="p-3 bg-light rounded">
+                                    <h3 class="text-primary">{{ users|length }}</h3>
+                                    <p class="mb-0">Total Users</p>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="p-3 bg-light rounded">
+                                    <h3 class="text-primary">{{ users|selectattr('is_admin', 'equalto', true)|list|length }}</h3>
+                                    <p class="mb-0">Administrators</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded">
+                                    <h3 class="text-primary">{{ users|selectattr('borrow_records', 'defined')|selectattr('borrow_records', 'ne', [])|list|length }}</h3>
+                                    <p class="mb-0">Active Users</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded">
+                                    <h3 class="text-primary">{{ users|selectattr('date_joined', 'ge', now.replace(day=1))|list|length }}</h3>
+                                    <p class="mb-0">New This Month</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fa-solid fa-info-circle me-2"></i>Management Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Use this panel to manage user accounts in the library system.</p>
+                        <ul>
+                            <li>View detailed information about each user by clicking the eye icon.</li>
+                            <li>Grant or revoke administrator privileges using the user plus/minus button.</li>
+                            <li>Administrators can manage books, users, and view all library statistics.</li>
+                            <li>Regular users can only borrow books and manage their own accounts.</li>
+                        </ul>
+                        <div class="alert alert-warning">
+                            <i class="fa-solid fa-exclamation-triangle me-2"></i> <strong>Note:</strong> You cannot change your own admin status for security reasons.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fa-solid fa-book-open me-2"></i>Digital Library</h5>
+                    <p>Your gateway to knowledge and discovery.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('home') }}" class="text-white">Home</a></li>
+                        <li><a href="{{ url_for('catalog') }}" class="text-white">Book Catalog</a></li>
+                        <li><a href="{{ url_for('dashboard') }}" class="text-white">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Admin Tools</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('admin_panel') }}" class="text-white">Admin Panel</a></li>
+                        <li><a href="{{ url_for('add_book') }}" class="text-white">Add Book</a></li>
+                        <li><a href="{{ url_for('manage_users') }}" class="text-white">Manage Users</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 Digital Library. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html> 
